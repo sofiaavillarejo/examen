@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JQuery Series Sofia</title>
+    <link rel="stylesheet" href="./../css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <div>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-primary" aria-label="Third navbar example">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="jquerySeriesSofia.html"><img style="width: 100px;" src="stranger.png"/></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarsExample03" aria-controls="navbarsExample03" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarsExample03">
+                    <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="jquerySeriesSofia.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link inactive" href="jquerySeriesNuevoPersonajeSofia.html">Nuevo personaje</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link inactive" href="jqueryModificarPersonajeSofia.html">Modificar personaje</a>
+                        </li>
+                        <li class="nav-item dropdown inactive" id="dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Series</a>
+                            <ul id="navseries" class="dropdown-menu">
+                               
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+       </div>
+       <div id="container" class="m-4">
+           <h1>Crear personaje</h1>
+           <hr class="border border-primary opacity-100 text-center" />
+           <form>
+               <label>Nombre</label>
+               <input class="form-control" type="text" id="cajanombre"/>
+               <label id="cajaimagen">Imagen</label>
+               <input class="form-control" type="text" id="cajaimagen"/>
+               <label >Serie</label>
+               <select class="form-control" id="selectSerie">
+
+               </select>
+               <button id="btnCrear" class="btn btn-success w-100 mt-3">Crear personaje</button>
+           </form>
+       </div>
+
+       <script src="./../js/jquery-3.7.1.js"></script>
+       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+       <script>
+        let url= "https://apiseriespersonajes2024.azurewebsites.net/";
+        $(document).ready(function () {
+            loadSeries();
+
+            $("#navseries").on("click", ".dropdown-item a", function (e) { 
+                e.preventDefault();
+                let idSerie = $(this).data("id");
+                window.location.href = $(this).attr("href");
+            });
+
+            var request = "api/Personajes";
+            $("#btnCrear").click(function (e) { 
+                e.preventDefault();
+                let nombre = $("#cajanombre").val();
+                let imagen = $("#cajaimagen").val();
+                let serie = parseInt($("#selectSerie").val());
+                var personaje = new Object();
+                personaje.idPersonaje = 0;
+                personaje.nombre = nombre;
+                personaje.imagen = imagen;
+                personaje.idSerie = serie;
+                //convertimos el objeto a JSON
+                var personajeJson = JSON.stringify(personaje);
+                console.log(personajeJson);
+                $.ajax({
+                    type: "POST",
+                    url: url + request,
+                    data: personajeJson,
+                    contentType: "application/json",
+                    success: function (response) {
+                        console.log(response);
+                        console.log("Insertado", personajeJson);
+                        window.location.href = "jquerySeriesPersonajes.html?idserie=" + serie;
+                    }
+                });
+            });
+        });
+
+        function loadSeries(){
+            let request = "api/Series";
+            $.getJSON(url + request,
+                function (data) {
+                    console.log(data);
+                    $.each(data, function (index, serie) { 
+                        let li = $("<li>").addClass("dropdown-item");
+                        let a = $("<a>", {"text": serie.nombre, "class": "dropdown-item", "href": "jquerySeriesDetalleSofia.html?idserie="+serie.idSerie, "data-id": serie.idSerie});
+                        var option = $("<option>", {"text": serie.nombre, "value": serie.idSerie});
+                        li.append(a);                  
+                        $("#navseries").append(li);
+                        $("#selectSerie").append(option);
+                    });
+                }
+            );
+        }
+
+        
+       </script>
+</body>
+</html>
